@@ -7,3 +7,5 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     email_id = models.EmailField(unique=True)
     profile_picture_url = models.URLField()
+
+
