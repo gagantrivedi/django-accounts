@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1g3(!pcce_#@0i9a4j2+1%rq^sc*_40z@p6z*!@75vd3oi+c-1'
+SECRET_KEY = os.environ['USER_ACCOUNTS_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -75,12 +77,17 @@ WSGI_APPLICATION = 'user_accounts.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'accounts',
+        'HOST':'localhost',
+        'PORT':'5432',
+        'USER': os.environ['USER_ACCOUNTS_DB_USER'],
+        'PASSWORD': os.environ['USER_ACCOUNTS_DB_PASSWORD'],
     }
 }
 
 
+AUTH_USER_MODEL = 'accounts.User'
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
