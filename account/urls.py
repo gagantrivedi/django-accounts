@@ -1,8 +1,8 @@
 from django.conf.urls import url
 
-from account.views import UserProfileView
+from account.views import RegisterUserProfileView
 
 urlpatterns = [
-    url(r'^profile$',UserProfileView.as_view()),
+    url(r'^register$',RegisterUserProfileView.as_view()),
 
 ]
