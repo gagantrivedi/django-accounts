@@ -15,7 +15,6 @@ class ModelTest(TestCase):
         self.user.save()
 
     def test_model_email(self):
-        test= User.objects.count()
-        self.user.save()
+        test= User.objects.get(email='test@mail.com')
         pass
 
