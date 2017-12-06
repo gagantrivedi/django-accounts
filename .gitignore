@@ -1,1 +1,3 @@
-accoutsenv/*
+accoutsenv/
+.idea/
+*.pyc
