@@ -18,3 +18,6 @@ class UserModelTest(TestCase):
     def test_model_user(self):
         test = User.objects.get(email_id='test@test.com')
         self.assertEqual(self.user, test)
+
+
+

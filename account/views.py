@@ -1,5 +1,5 @@
 import os
-
+from django.contrib.auth import authenticate
 from rest_framework import status
 
 from rest_framework.views import APIView
@@ -12,6 +12,8 @@ from account.models import User
 
 
 class RegisterUserProfileView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request):
         """ this method is used to register user profile """
         try:
@@ -40,7 +42,7 @@ class RegisterUserProfileView(APIView):
 
             user = User.objects.create(username=username, email_id=email_id, first_name=first_name, last_name=last_name,
                                        profile_picture_url=profile_picture_url, password=password)
-
+            #
             result = UserAccountSerializer(instance=user).data
             result['token'] = Token.objects.create(user=user).key
             response = {
@@ -56,3 +58,28 @@ class RegisterUserProfileView(APIView):
                 'exception': e.message
             }
             return JSONResponse(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data['username']
+        password = request.data['password']
+        user = authenticate(username=username, password=password)
+        if user:
+            result = UserAccountSerializer(instance=user).data
+            result['token'] = Token.objects.create(user=user).key
+            response = {
+                'message': 'User Details Fetched Successfully',
+                'status': True,
+                'result': result
+            }
+            return JSONResponse(response)
+
+        else:
+            response = {
+                'message': 'Provided Credentials Are Wrong',
+                'status': False,
+                'result': None
+            }
+            return JSONResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
