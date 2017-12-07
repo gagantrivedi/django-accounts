@@ -32,7 +32,7 @@ class RegisterUserProfileView(APIView):
             # or the combination is in RESERVED_USERNAME_EMAIL_LIST
             if User.objects.filter(Q(username=username) | Q(email_id=email_id)).exists():
                 response = {
-                    'message': 'username or email already taken',
+                    'message': 'Username or Email Already Taken',
                     'status': False,
                     'result': None
                 }
@@ -40,7 +40,7 @@ class RegisterUserProfileView(APIView):
 
             user = User.objects.create(username=username, email_id=email_id, first_name=first_name, last_name=last_name,
                                        profile_picture_url=profile_picture_url, password=password)
-            #TODO send email using celery
+            # TODO send email using celery
             response = {
                 'message': 'user created successfully',
                 'status': True,
@@ -66,7 +66,7 @@ class LoginView(APIView):
             result = UserAccountSerializer(instance=user).data
             result['token'] = Token.objects.create(user=user).key
             response = {
-                'message': 'User Details Fetched Successfully',
+                'message': 'User  Logged In Successfully',
                 'status': True,
                 'result': result
             }
@@ -89,8 +89,33 @@ class LogoutView(APIView):
         Token.objects.filter(user=user).delete()
 
         response = {
-            'message': 'User Logged Ount Successfully',
+            'message': 'User Logged Out Successfully',
             'status': True,
             'result': None
         }
         return JSONResponse(response)
+
+
+class UserProfileView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user_id = request.query_params['user_id']
+        user = User.objects.filter(id=user_id).first()
+        if user:
+            result = UserAccountSerializer(instance=user).data
+            response = {
+                'message': 'User Details Fetched Successfully',
+                'status': True,
+                'result': result
+            }
+            return JSONResponse(response)
+        else:
+            response = {
+                'message': 'No User Exist With The Given Id',
+                'status': False,
+                'result': None
+            }
+            return JSONResponse(response, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
