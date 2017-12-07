@@ -12,8 +12,6 @@ from account.models import User
 
 
 class RegisterUserProfileView(APIView):
-    permission_classes = (IsAuthenticated,)
-
     def post(self, request):
         """ this method is used to register user profile """
         try:
@@ -42,13 +40,11 @@ class RegisterUserProfileView(APIView):
 
             user = User.objects.create(username=username, email_id=email_id, first_name=first_name, last_name=last_name,
                                        profile_picture_url=profile_picture_url, password=password)
-            #
-            result = UserAccountSerializer(instance=user).data
-            result['token'] = Token.objects.create(user=user).key
+            #TODO send email using celery
             response = {
                 'message': 'user created successfully',
                 'status': True,
-                'result': result
+                'result': None
             }
             return JSONResponse(response)
         except Exception as e:
@@ -66,6 +62,7 @@ class LoginView(APIView):
         password = request.data['password']
         user = authenticate(username=username, password=password)
         if user:
+
             result = UserAccountSerializer(instance=user).data
             result['token'] = Token.objects.create(user=user).key
             response = {
@@ -83,3 +80,17 @@ class LoginView(APIView):
             }
             return JSONResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        Token.objects.filter(user=user).delete()
+
+        response = {
+            'message': 'User Logged Ount Successfully',
+            'status': True,
+            'result': None
+        }
+        return JSONResponse(response)
