@@ -1,11 +1,11 @@
-import os
 from django.contrib.auth import authenticate
 from rest_framework import status
-
+from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.db.models import Q
+
 from middleware.response import JSONResponse
 from account.serializers import UserAccountSerializer
 from account.models import User
@@ -114,12 +114,23 @@ class UserProfileView(APIView):
     def post(self, request):
         user_details = request.data['user_details']
         user = request.user
-        for attr, value in user_details.iteritems():
-            setattr(user, attr, value)
-        user.save()
-        response = {
-            'message': 'User Details Updated Successfully',
-            'status': True,
-            'result': None
-        }
-        return JSONResponse(response)
+        try:
+            for attr, value in user_details.iteritems():
+                setattr(user, attr, value)
+            user.save()
+            response = {
+                'message': 'User Details Updated Successfully',
+                'status': True,
+                'result': None
+            }
+            return JSONResponse(response)
+        except IntegrityError:
+            response = {
+                'message': 'Username or Email Already Taken',
+                'status': False,
+                'result': None
+            }
+            return JSONResponse(response, status=status.HTTP_409_CONFLICT)
+
+
+
