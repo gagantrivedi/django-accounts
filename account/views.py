@@ -27,6 +27,9 @@ class RegisterUserProfileView(APIView):
                 last_name = request.data['last_name'].strip()
             else:
                 last_name = None
+
+            # check to see if user with the given email or username already exist
+            # or the combination is in RESERVED_USERNAME_EMAIL_LIST
             if User.objects.filter(Q(username=username) | Q(email_id=email_id)).exists():
                 response = {
                     'message': 'username or email already taken',

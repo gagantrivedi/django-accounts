@@ -1,20 +1,20 @@
 from django.test import TestCase
-from accounts.models import User
+from account.models import User
 
 
 # Create your tests here.
 
-class ModelTest(TestCase):
+class UserModelTest(TestCase):
     """ Test suite for user model"""
 
-    def setup(self):
+    def setUp(self):
         self.user_name = 'test'
-        self.user_email = 'test@mail.com'
+        self.user_email_id = 'test@test.com'
         self.password = '123456'
-        self.user = User(user_name=self.user_name, email_id=self.user_email, password=self.password)
+        self.user = User(username=self.user_name, email_id=self.user_email_id, password=self.password)
         self.user.save()
+        print ('user object created')
 
-    def test_model_email(self):
-        test= User.objects.get(email='test@mail.com')
-        pass
-
+    def test_model_user(self):
+        test = User.objects.get(email_id='test@test.com')
+        self.assertEqual(self.user, test)
