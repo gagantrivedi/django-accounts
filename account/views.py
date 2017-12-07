@@ -1,14 +1,15 @@
 from django.contrib.auth import authenticate
-from rest_framework import status
 from django.db import IntegrityError
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
 from django.db.models import Q
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
-from middleware.response import JSONResponse
-from account.serializers import UserAccountSerializer
 from account.models import User
+from account.serializers import UserAccountSerializer
+from account.task import send_welcome_mail
+from middleware.response import JSONResponse
 
 
 class RegisterUserProfileView(APIView):
@@ -37,10 +38,11 @@ class RegisterUserProfileView(APIView):
             }
             return JSONResponse(response, status=status.HTTP_409_CONFLICT)
 
-        user = User.objects.create_user(username=username, email_id=email_id, first_name=first_name,
-                                        last_name=last_name,
-                                        profile_picture_url=profile_picture_url, password=password)
-        # TODO send email using celery
+        User.objects.create_user(username=username, email_id=email_id, first_name=first_name,
+                                 last_name=last_name,
+                                 profile_picture_url=profile_picture_url, password=password)
+
+        send_welcome_mail.delay(username, email_id)
         response = {
             'message': 'user created successfully',
             'status': True,
@@ -131,6 +133,3 @@ class UserProfileView(APIView):
                 'result': None
             }
             return JSONResponse(response, status=status.HTTP_409_CONFLICT)
-
-
-
