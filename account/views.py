@@ -115,7 +115,7 @@ class UserProfileView(APIView):
         user_details = request.data['user_details']
         user = request.user
         try:
-            for attr, value in user_details.iteritems():
+            for attr, value in user_details.items():
                 setattr(user, attr, value)
             user.save()
             response = {
