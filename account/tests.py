@@ -1,8 +1,10 @@
 from django.test import TestCase
 from account.models import User
+from rest_framework.test import force_authenticate
+from rest_framework.test import APIClient
+from django.core.urlresolvers import reverse
+from rest_framework import status
 
-
-# Create your tests here.
 
 class UserModelTest(TestCase):
     """ Test suite for user model"""
@@ -20,4 +22,15 @@ class UserModelTest(TestCase):
         self.assertEqual(self.user, test)
 
 
+class RegisterUserProfileApiTest(TestCase):
+    """Test suite for user registration api"""
 
+    def setUp(self):
+        self.client = APIClient()
+        self.response = self.client.post(reverse('register'),
+                                         {'username': 'bill', 'email_id': 'mail@me.com', 'password': '123456',
+                                          'profile_picture_url': 'ww.'},
+                                         format='json')
+
+    def test_user_creation(self):
+        self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)

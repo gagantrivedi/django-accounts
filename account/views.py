@@ -14,46 +14,38 @@ from account.models import User
 class RegisterUserProfileView(APIView):
     def post(self, request):
         """ this method is used to register user profile """
-        try:
-            username = request.data['username']
-            email_id = request.data['email_id']
-            password = request.data['password']
-            profile_picture_url = request.data['profile_picture_url']
-            if 'first_name' in request.data:
-                first_name = request.data['first_name'].strip()
-            else:
-                first_name = None
-            if 'last_name' in request.data:
-                last_name = request.data['last_name'].strip()
-            else:
-                last_name = None
+        username = request.data['username']
+        email_id = request.data['email_id']
+        password = request.data['password']
+        profile_picture_url = request.data['profile_picture_url']
+        if 'first_name' in request.data:
+            first_name = request.data['first_name'].strip()
+        else:
+            first_name = None
+        if 'last_name' in request.data:
+            last_name = request.data['last_name'].strip()
+        else:
+            last_name = None
 
-            # check to see if user with the given email or username already exist
-            # or the combination is in RESERVED_USERNAME_EMAIL_LIST
-            if User.objects.filter(Q(username=username) | Q(email_id=email_id)).exists():
-                response = {
-                    'message': 'Username or Email Already Taken',
-                    'status': False,
-                    'result': None
-                }
-                return JSONResponse(response, status=status.HTTP_409_CONFLICT)
-
-            user = User.objects.create(username=username, email_id=email_id, first_name=first_name, last_name=last_name,
-                                       profile_picture_url=profile_picture_url, password=password)
-            # TODO send email using celery
+        # check to see if user with the given email or username already exist
+        # or the combination is in RESERVED_USERNAME_EMAIL_LIST
+        if User.objects.filter(Q(username=username) | Q(email_id=email_id)).exists():
             response = {
-                'message': 'user created successfully',
-                'status': True,
+                'message': 'Username or Email Already Taken',
+                'status': False,
                 'result': None
             }
-            return JSONResponse(response)
-        except Exception as e:
-            response = {
-                'message': 'An Error occurred',
-                'status': False,
-                'exception': e.message
-            }
-            return JSONResponse(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JSONResponse(response, status=status.HTTP_409_CONFLICT)
+
+        user = User.objects.create(username=username, email_id=email_id, first_name=first_name, last_name=last_name,
+                                   profile_picture_url=profile_picture_url, password=password)
+        # TODO send email using celery
+        response = {
+            'message': 'user created successfully',
+            'status': True,
+            'result': None
+        }
+        return JSONResponse(response, status=status.HTTP_201_CREATED)
 
 
 class LoginView(APIView):
@@ -118,4 +110,5 @@ class UserProfileView(APIView):
             }
             return JSONResponse(response, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-
+    def put(self, request):
+        pass
