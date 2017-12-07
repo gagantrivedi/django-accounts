@@ -37,8 +37,9 @@ class RegisterUserProfileView(APIView):
             }
             return JSONResponse(response, status=status.HTTP_409_CONFLICT)
 
-        user = User.objects.create(username=username, email_id=email_id, first_name=first_name, last_name=last_name,
-                                   profile_picture_url=profile_picture_url, password=password)
+        user = User.objects.create_user(username=username, email_id=email_id, first_name=first_name,
+                                        last_name=last_name,
+                                        profile_picture_url=profile_picture_url, password=password)
         # TODO send email using celery
         response = {
             'message': 'user created successfully',
@@ -110,5 +111,15 @@ class UserProfileView(APIView):
             }
             return JSONResponse(response, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    def put(self, request):
-        pass
+    def post(self, request):
+        user_details = request.data['user_details']
+        user = request.user
+        for attr, value in user_details.iteritems():
+            setattr(user, attr, value)
+        user.save()
+        response = {
+            'message': 'User Details Updated Successfully',
+            'status': True,
+            'result': None
+        }
+        return JSONResponse(response)
