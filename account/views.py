@@ -59,7 +59,7 @@ class LoginView(APIView):
         if user:
 
             result = UserAccountSerializer(instance=user).data
-            result['token'] = Token.objects.create(user=user).key
+            result['token'] = Token.objects.get_or_create(user=user)[0].key
             response = {
                 'message': 'User  Logged In Successfully',
                 'status': True,
